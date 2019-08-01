@@ -1,0 +1,84 @@
+import java.io.RandomAccessFile;
+public class HashTable{
+
+	private Entry[] table = new Entry[128];
+	private double loadFactor;
+	private int numOfEntries;
+
+	public HashTable(double ld){
+		loadFactor = ld;
+		numOfEntries = 0;
+
+	}
+
+	public long calcHashAddress(String input){
+
+		char char1 = input.charAt(0); //p1 = POSITION ONE OF INPUT STRING
+		char char4 = input.charAt(3);
+		char char6 = input.charAt(5);
+
+		long p1 = (int) char1;
+		long p4 = (int) char4;
+		long p6 = (int) char6;
+
+		long HA = (( p1 * 512 + p4 / 7 + p6 / 7) / 256 ) % 128;
+
+		return HA;
+	}
+
+	public void insertEntry(String input){
+		String key = input;
+		long HA = calcHashAddress(input);
+		long originalHA = calcHashAddress(input);
+		int finalProbeNum = 1;
+		boolean successfulEntry = false;
+
+		do{
+			if(table[(int)HA] == null){
+				Entry e = new Entry(key, (int)originalHA, finalProbeNum);
+				table[(int)HA] = e;
+				successfulEntry = true;
+				numOfEntries++;
+			}
+			else{
+				HA++;
+				finalProbeNum++;
+			}
+		}while(successfulEntry == false);
+	}
+
+	public int findEntry(String input){
+		long HA = calcHashAddress(input);
+		int finalSearchNum = 1;
+		boolean successfulSearch = false;
+
+		do{
+			if(table[(int)HA].getKey().equals(input)){
+				successfulSearch = true;
+			}
+			else{
+				HA++;
+				finalSearchNum++;
+			}
+		}while(successfulSearch == false);
+		return finalSearchNum;
+	}
+
+	public double getFullness(){
+		return ((double)numOfEntries / 128);
+	}
+
+	public void printTable(){
+
+		for(int i = 0; i < 128; i++){
+			if(table[i] != null){
+				String outputString = "Position [" + (i+1) + "]: " + table[i].getKey() + "\tInitial Position: " + table[i].getHA() + "\t Final Probe Count : " + table[i].getFinalProbe();
+				System.out.println(outputString);
+			}
+			else{
+				String emptyString = "Position [" + (i+1) + "]: EMPTY";
+				System.out.println(emptyString);
+			}
+		}
+	}
+}
